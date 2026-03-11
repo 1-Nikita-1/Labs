@@ -1,0 +1,23 @@
+function* Generator() {
+    let a = 1;
+    let b = 2;
+
+    while (true) {
+        yield a;
+        [a, b] = [b, a + b];
+    }
+}
+
+async function consumeIterator(iterator, seconds) {
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < seconds * 1000) {
+        const value = iterator.next().value;
+        console.log(value);
+
+        await new Promise(resolve => setTimeout(resolve, 200));
+    }
+}
+
+const fibonacci = Generator();
+consumeIterator(fibonacci, 5);
