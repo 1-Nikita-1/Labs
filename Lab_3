@@ -1,0 +1,114 @@
+function memoize(fn, options = {}) {
+    const {
+        maxSize = Infinity,
+        policy = "LRU",
+        ttl = 0,
+        customEvict = null
+    } = options;
+
+    const cache = new Map();
+    const meta = new Map();
+
+    function getKey(args) {
+        return JSON.stringify(args);
+    }
+
+    function evict() {
+        if (cache.size <= maxSize) return;
+
+        if (policy === "LRU") {
+            const oldestKey = cache.keys().next().value;
+            cache.delete(oldestKey);
+            meta.delete(oldestKey);
+
+        } else if (policy === "LFU") {
+            let leastKey;
+            let minCount = Infinity;
+
+            for (let [key, data] of meta.entries()) {
+                if (data.count < minCount) {
+                    minCount = data.count;
+                    leastKey = key;
+                }
+            }
+
+            cache.delete(leastKey);
+            meta.delete(leastKey);
+
+        } else if (policy === "CUSTOM" && typeof customEvict === "function") {
+            const keyToDelete = customEvict(cache, meta);
+            if (keyToDelete) {
+                cache.delete(keyToDelete);
+                meta.delete(keyToDelete);
+            }
+        }
+    }
+
+    return function (...args) {
+        const key = getKey(args);
+        const now = Date.now();
+
+        if (policy === "TTL" && cache.has(key)) {
+            const { time } = meta.get(key);
+            if (now - time > ttl) {
+                cache.delete(key);
+                meta.delete(key);
+            }
+        }
+
+        if (cache.has(key)) {
+            const value = cache.get(key);
+            const data = meta.get(key);
+
+            data.count++;
+            data.time = now;
+
+            if (policy === "LRU") {
+                cache.delete(key);
+                cache.set(key, value);
+            }
+
+            console.log("From cache:", key);
+            return value;
+        }
+
+        const result = fn(...args);
+
+        cache.set(key, result);
+        meta.set(key, {
+            count: 1,
+            time: now
+        });
+
+        evict();
+
+        console.log("Calculated:", key);
+        return result;
+    };
+}
+
+const slowSquare = (x) => x * x;
+
+console.log("LRU:");
+const memoLRU = memoize(slowSquare, { maxSize: 2, policy: "LRU" });
+
+memoLRU(1);
+memoLRU(2);
+memoLRU(1);
+memoLRU(3);
+memoLRU(2);
+
+console.log("\nLFU:");
+const memoLFU = memoize(slowSquare, { maxSize: 2, policy: "LFU" });
+
+memoLFU(1);
+memoLFU(2);
+memoLFU(1);
+memoLFU(3);
+
+console.log("\nTTL:");
+const memoTTL = memoize(slowSquare, { policy: "TTL", ttl: 2000 });
+
+memoTTL(5);
+setTimeout(() => memoTTL(5), 1000);
+setTimeout(() => memoTTL(5), 3000);
