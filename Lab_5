@@ -56,3 +56,57 @@ async function asyncMapAwait(arr, asyncFn, signal) {
     return result;
 }
 
+function asyncDoubleCallback(x, cb) {
+    setTimeout(() => {
+        cb(x * 2);
+    }, 500);
+}
+
+function asyncDoublePromise(x) {
+    return new Promise(resolve => {
+        setTimeout(() => resolve(x * 2), 500);
+    });
+}
+
+const arr = [1, 2, 3, 4];
+
+console.log("=== INPUT ARRAY ===");
+console.log(arr);
+
+asyncMapCallback(arr, asyncDoubleCallback, (result) => {
+    console.log("\n=== Callback result ===");
+    console.log(result);
+});
+
+asyncMapPromise(arr, asyncDoublePromise)
+    .then(res => {
+        console.log("\n=== Promise result ===");
+        console.log(res);
+    })
+    .catch(err => console.error(err.message));
+
+(async () => {
+    try {
+        const res = await asyncMapAwait(arr, asyncDoublePromise);
+        console.log("\n=== Async/Await result ===");
+        console.log(res);
+    } catch (err) {
+        console.error(err.message);
+    }
+})();
+
+const controller = new AbortController();
+
+asyncMapPromise(arr, asyncDoublePromise, controller.signal)
+    .then(res => {
+        console.log("\n=== Abort test result ===");
+        console.log(res);
+    })
+    .catch(err => {
+        console.log("\n=== Abort test ===");
+        console.log("Cancelled:", err.message);
+    });
+
+setTimeout(() => {
+    controller.abort();
+}, 700);
