@@ -1,0 +1,20 @@
+class BiPriorityQueue {
+    constructor() {
+        this.order = [];
+        this.sorted = [];
+        this.id = 0;
+    }
+
+    enqueue(value, priority) {
+        const node = { value, priority, id: this.id++ };
+
+        this.order.push(node);
+
+        let index = this.sorted.findIndex(n => n.priority > priority);
+        if (index === -1) {
+            this.sorted.push(node);
+        } else {
+            this.sorted.splice(index, 0, node);
+        }
+    }
+}
