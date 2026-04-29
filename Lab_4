@@ -17,4 +17,28 @@ class BiPriorityQueue {
             this.sorted.splice(index, 0, node);
         }
     }
+
+    dequeueHighest() {
+        const node = this.sorted.pop();
+        this.removeFromOrder(node.id);
+        return node;
+    }
+
+    dequeueLowest() {
+        const node = this.sorted.shift();
+        this.removeFromOrder(node.id);
+        return node;
+    }
+
+    dequeueOldest() {
+        const node = this.order.shift();
+        this.removeFromSorted(node.id);
+        return node;
+    }
+
+    dequeueNewest() {
+        const node = this.order.pop();
+        this.removeFromSorted(node.id);
+        return node;
+    }
 }
