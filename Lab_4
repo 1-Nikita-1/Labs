@@ -41,4 +41,20 @@ class BiPriorityQueue {
         this.removeFromSorted(node.id);
         return node;
     }
+
+    peekHighest() {
+        return this.sorted[this.sorted.length - 1];
+    }
+
+    peekLowest() {
+        return this.sorted[0];
+    }
+
+    peekOldest() {
+        return this.order[0];
+    }
+
+    peekNewest() {
+        return this.order[this.order.length - 1];
+    }
 }
