@@ -1,0 +1,6 @@
+async function* generateLargeData(limit) {
+    for (let i = 1; i <= limit; i++) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        yield i;
+    }
+}
