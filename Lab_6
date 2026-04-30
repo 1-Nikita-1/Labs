@@ -4,3 +4,24 @@ async function* generateLargeData(limit) {
         yield i;
     }
 }
+
+async function processDataStream(limit) {
+    let sum = 0;
+    let count = 0;
+
+    for await (const value of generateLargeData(limit)) {
+        const processed = value * 2;
+
+        console.log(`Received: ${value}, Processed: ${processed}`);
+
+        sum += processed;
+        count++;
+
+        if (count >= limit) break;
+    }
+
+    console.log("\n=== FINAL RESULT ===");
+    console.log("Processed elements:", count);
+    console.log("Sum:", sum);
+}
+
