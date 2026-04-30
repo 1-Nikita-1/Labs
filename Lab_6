@@ -25,3 +25,10 @@ async function processDataStream(limit) {
     console.log("Sum:", sum);
 }
 
+(async () => {
+    console.log("=== START STREAM PROCESSING ===\n");
+
+    await processDataStream(10);
+
+    console.log("\n=== DONE ===");
+})();
