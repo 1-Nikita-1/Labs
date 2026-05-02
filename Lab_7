@@ -56,3 +56,21 @@ class AutoResponder {
         console.log('[AutoResponder] Unsubscribed');
     }
 }
+
+const sender = new Sender();
+
+const logger = new Logger();
+const analyzer = new Analyzer();
+const responder = new AutoResponder();
+
+sender.send('hello world');
+sender.send('reactive systems are cool');
+
+logger.unsubscribe();
+
+sender.send('this message is after unsubscribe');
+
+analyzer.unsubscribe();
+responder.unsubscribe();
+
+sender.send('no listeners now');
