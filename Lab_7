@@ -9,3 +9,18 @@ class Sender {
         bus.emit('message', message);
     }
 }
+
+class Logger {
+    constructor() {
+        this.listener = (msg) => {
+            console.log(`[Logger] Received: ${msg}`);
+        };
+
+        bus.on('message', this.listener);
+    }
+
+    unsubscribe() {
+        bus.off('message', this.listener);
+        console.log('[Logger] Unsubscribed');
+    }
+}
