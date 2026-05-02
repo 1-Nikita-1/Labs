@@ -24,3 +24,18 @@ class Logger {
         console.log('[Logger] Unsubscribed');
     }
 }
+
+class Analyzer {
+    constructor() {
+        this.listener = (msg) => {
+            console.log(`[Analyzer] Message length: ${msg.length}`);
+        };
+
+        bus.on('message', this.listener);
+    }
+
+    unsubscribe() {
+        bus.off('message', this.listener);
+        console.log('[Analyzer] Unsubscribed');
+    }
+}
