@@ -39,3 +39,20 @@ class Analyzer {
         console.log('[Analyzer] Unsubscribed');
     }
 }
+
+class AutoResponder {
+    constructor() {
+        this.listener = (msg) => {
+            if (msg.includes('hello')) {
+                console.log('[AutoResponder] Reply: Hi there!');
+            }
+        };
+
+        bus.on('message', this.listener);
+    }
+
+    unsubscribe() {
+        bus.off('message', this.listener);
+        console.log('[AutoResponder] Unsubscribed');
+    }
+}
