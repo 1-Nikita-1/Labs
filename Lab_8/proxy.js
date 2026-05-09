@@ -35,3 +35,41 @@ function rateLimit() {
 
     lastRequestTime = now;
 }
+
+async function proxyRequest(endpoint) {
+    try {
+        rateLimit();
+
+        let headers = {};
+
+        if (authConfig.type === 'API_KEY') {
+            headers['x-api-key'] = authConfig.apiKey;
+        } else if (authConfig.type === 'JWT') {
+            headers['Authorization'] = `Bearer ${authConfig.token}`;
+        }
+
+        console.log('[Proxy] Sending request with headers:', headers);
+
+        const response = await axios.get(`${API_URL}${endpoint}`, {
+            headers
+        });
+
+        return response.data;
+
+    } catch (error) {
+
+        if (error.response && error.response.status === 401) {
+
+            console.log('[Proxy] Token expired');
+
+            const newToken = await refreshToken();
+            authConfig.token = newToken;
+
+            console.log('[Proxy] Retrying request...');
+
+            return proxyRequest(endpoint);
+        }
+
+        throw error;
+    }
+}
