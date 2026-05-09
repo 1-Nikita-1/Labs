@@ -11,3 +11,14 @@ let authConfig = {
     apiKey: 'my-secret-api-key',
     token: 'initial-token'
 };
+
+async function refreshToken() {
+    console.log('[Auth] Refreshing token...');
+
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const newToken = 'new-token-' + Date.now();
+            resolve(newToken);
+        }, 1000);
+    });
+}
