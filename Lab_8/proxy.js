@@ -73,3 +73,40 @@ async function proxyRequest(endpoint) {
         throw error;
     }
 }
+
+app.get('/proxy/posts', async (req, res) => {
+    try {
+        const data = await proxyRequest('/posts');
+
+        res.send(JSON.stringify(data, null, 2));
+
+    } catch (err) {
+        res.status(500).json({
+            error: err.message
+        });
+    }
+});
+
+app.get('/switch-auth/:type', (req, res) => {
+
+    const type = req.params.type.toUpperCase();
+
+    if (['API_KEY', 'JWT'].includes(type)) {
+
+        authConfig.type = type;
+
+        res.json({
+            message: `Switched to ${type}`
+        });
+
+    } else {
+
+        res.status(400).json({
+            error: 'Invalid auth type'
+        });
+    }
+});
+
+app.listen(3000, () => {
+    console.log('Proxy server running on http://localhost:3000');
+});
