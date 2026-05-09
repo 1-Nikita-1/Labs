@@ -22,3 +22,16 @@ async function refreshToken() {
         }, 1000);
     });
 }
+
+let lastRequestTime = 0;
+const RATE_LIMIT_MS = 500;
+
+function rateLimit() {
+    const now = Date.now();
+
+    if (now - lastRequestTime < RATE_LIMIT_MS) {
+        throw new Error('Too many requests');
+    }
+
+    lastRequestTime = now;
+}
