@@ -18,3 +18,55 @@ function formatLog(level, functionName, args, result = null, error = null, execT
         execution_time_ms: execTime
     }, null, 4);
 }
+
+function log(level = "INFO", logErrorsOnly = false) {
+
+    return function (func) {
+
+        return async function (...args) {
+
+            const startTime = Date.now();
+
+            try {
+
+                const result = await func(...args);
+
+                const execTime = Date.now() - startTime;
+
+                if (!logErrorsOnly) {
+
+                    const message = formatLog(
+                        level,
+                        func.name,
+                        args,
+                        result,
+                        null,
+                        execTime
+                    );
+
+                    writeLog(message);
+                }
+
+                return result;
+
+            } catch (error) {
+
+                const execTime = Date.now() - startTime;
+
+                const message = formatLog(
+                    "ERROR",
+                    func.name,
+                    args,
+                    null,
+                    error,
+                    execTime
+                );
+
+                writeLog(message);
+
+                throw error;
+            }
+        };
+    };
+}
+
