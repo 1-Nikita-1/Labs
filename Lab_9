@@ -70,3 +70,21 @@ function log(level = "INFO", logErrorsOnly = false) {
     };
 }
 
+const add = log("INFO")(function add(a, b) {
+    return a + b;
+});
+
+const divide = log("ERROR", true)(function divide(a, b) {
+    return a / b;
+});
+
+const asyncTask = log("DEBUG")(async function asyncTask(seconds) {
+
+    return new Promise((resolve) => {
+
+        setTimeout(() => {
+            resolve(`Task completed in ${seconds} second(s)`);
+        }, seconds * 1000);
+
+    });
+});
