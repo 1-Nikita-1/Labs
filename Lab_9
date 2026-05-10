@@ -5,3 +5,16 @@ function writeLog(message) {
 
     fs.appendFileSync("app.log", message + "\n");
 }
+
+function formatLog(level, functionName, args, result = null, error = null, execTime = null) {
+
+    return JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: level,
+        function: functionName,
+        arguments: args,
+        result: result,
+        error: error ? error.message : null,
+        execution_time_ms: execTime
+    }, null, 4);
+}
