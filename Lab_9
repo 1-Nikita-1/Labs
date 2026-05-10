@@ -88,3 +88,21 @@ const asyncTask = log("DEBUG")(async function asyncTask(seconds) {
 
     });
 });
+
+async function main() {
+
+    console.log("SYNC FUNCTION:");
+    await add(10, 5);
+
+    console.log("\nERROR LOGGING:");
+
+    try {
+        await divide(10, 0);
+    } catch (error) {
+    }
+
+    console.log("\nASYNC FUNCTION:");
+    await asyncTask(2);
+}
+
+main();

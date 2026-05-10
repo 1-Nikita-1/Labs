@@ -1,0 +1,23 @@
+{
+    "timestamp": "2026-05-10T14:15:37.835Z",
+    "level": "INFO",
+    "function": "add",
+    "arguments": [
+        10,
+        5
+    ],
+    "result": 15,
+    "error": null,
+    "execution_time_ms": 0
+}
+{
+    "timestamp": "2026-05-10T14:15:39.839Z",
+    "level": "DEBUG",
+    "function": "asyncTask",
+    "arguments": [
+        2
+    ],
+    "result": "Task completed in 2 second(s)",
+    "error": null,
+    "execution_time_ms": 2002
+}
