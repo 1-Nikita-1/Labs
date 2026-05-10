@@ -1,0 +1,7 @@
+const fs = require("fs");
+
+function writeLog(message) {
+    console.log(message);
+
+    fs.appendFileSync("app.log", message + "\n");
+}
