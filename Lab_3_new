@@ -1,21 +1,45 @@
-function memoize(fn) {
+function memoize(fn, options = {}) {
+    const {
+        maxSize = Infinity,
+        policy = "LRU"
+    } = options;
+
     const cache = new Map();
 
     function getKey(args) {
         return JSON.stringify(args);
     }
 
+    function evict() {
+        if (cache.size <= maxSize) return;
+
+        if (policy === "LRU") {
+            const oldestKey = cache.keys().next().value;
+
+            cache.delete(oldestKey);
+        }
+    }
+
     return function (...args) {
         const key = getKey(args);
 
         if (cache.has(key)) {
+            const value = cache.get(key);
+
+            if (policy === "LRU") {
+                cache.delete(key);
+                cache.set(key, value);
+            }
+
             console.log("From cache:", key);
-            return cache.get(key);
+            return value;
         }
 
         const result = fn(...args);
 
         cache.set(key, result);
+
+        evict();
 
         console.log("Calculated:", key);
         return result;
@@ -24,7 +48,13 @@ function memoize(fn) {
 
 const slowSquare = (x) => x * x;
 
-const memo = memoize(slowSquare);
+const memoLRU = memoize(slowSquare, {
+    maxSize: 2,
+    policy: "LRU"
+});
 
-memo(2);
-memo(2);
+memoLRU(1);
+memoLRU(2);
+memoLRU(1);
+memoLRU(3);
+memoLRU(2);
