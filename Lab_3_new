@@ -1,7 +1,8 @@
 function memoize(fn, options = {}) {
     const {
         maxSize = Infinity,
-        policy = "LRU"
+        policy = "LRU",
+        ttl = 0
     } = options;
 
     const cache = new Map();
@@ -38,12 +39,23 @@ function memoize(fn, options = {}) {
 
     return function (...args) {
         const key = getKey(args);
+        const now = Date.now();
+
+        if (policy === "TTL" && cache.has(key)) {
+            const { time } = meta.get(key);
+
+            if (now - time > ttl) {
+                cache.delete(key);
+                meta.delete(key);
+            }
+        }
 
         if (cache.has(key)) {
             const value = cache.get(key);
             const data = meta.get(key);
 
             data.count++;
+            data.time = now;
 
             if (policy === "LRU") {
                 cache.delete(key);
@@ -59,7 +71,8 @@ function memoize(fn, options = {}) {
         cache.set(key, result);
 
         meta.set(key, {
-            count: 1
+            count: 1,
+            time: now
         });
 
         evict();
@@ -93,3 +106,14 @@ memoLFU(1);
 memoLFU(2);
 memoLFU(1);
 memoLFU(3);
+
+console.log("\nTTL:");
+const memoTTL = memoize(slowSquare, {
+    policy: "TTL",
+    ttl: 2000
+});
+
+memoTTL(5);
+
+setTimeout(() => memoTTL(5), 1000);
+setTimeout(() => memoTTL(5), 3000);
