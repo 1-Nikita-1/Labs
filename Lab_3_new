@@ -1,0 +1,30 @@
+function memoize(fn) {
+    const cache = new Map();
+
+    function getKey(args) {
+        return JSON.stringify(args);
+    }
+
+    return function (...args) {
+        const key = getKey(args);
+
+        if (cache.has(key)) {
+            console.log("From cache:", key);
+            return cache.get(key);
+        }
+
+        const result = fn(...args);
+
+        cache.set(key, result);
+
+        console.log("Calculated:", key);
+        return result;
+    };
+}
+
+const slowSquare = (x) => x * x;
+
+const memo = memoize(slowSquare);
+
+memo(2);
+memo(2);
