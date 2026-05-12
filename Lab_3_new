@@ -5,6 +5,7 @@ function memoize(fn, options = {}) {
     } = options;
 
     const cache = new Map();
+    const meta = new Map();
 
     function getKey(args) {
         return JSON.stringify(args);
@@ -17,6 +18,21 @@ function memoize(fn, options = {}) {
             const oldestKey = cache.keys().next().value;
 
             cache.delete(oldestKey);
+            meta.delete(oldestKey);
+
+        } else if (policy === "LFU") {
+            let leastKey;
+            let minCount = Infinity;
+
+            for (let [key, data] of meta.entries()) {
+                if (data.count < minCount) {
+                    minCount = data.count;
+                    leastKey = key;
+                }
+            }
+
+            cache.delete(leastKey);
+            meta.delete(leastKey);
         }
     }
 
@@ -25,6 +41,9 @@ function memoize(fn, options = {}) {
 
         if (cache.has(key)) {
             const value = cache.get(key);
+            const data = meta.get(key);
+
+            data.count++;
 
             if (policy === "LRU") {
                 cache.delete(key);
@@ -39,6 +58,10 @@ function memoize(fn, options = {}) {
 
         cache.set(key, result);
 
+        meta.set(key, {
+            count: 1
+        });
+
         evict();
 
         console.log("Calculated:", key);
@@ -48,6 +71,7 @@ function memoize(fn, options = {}) {
 
 const slowSquare = (x) => x * x;
 
+console.log("LRU:");
 const memoLRU = memoize(slowSquare, {
     maxSize: 2,
     policy: "LRU"
@@ -58,3 +82,14 @@ memoLRU(2);
 memoLRU(1);
 memoLRU(3);
 memoLRU(2);
+
+console.log("\nLFU:");
+const memoLFU = memoize(slowSquare, {
+    maxSize: 2,
+    policy: "LFU"
+});
+
+memoLFU(1);
+memoLFU(2);
+memoLFU(1);
+memoLFU(3);
