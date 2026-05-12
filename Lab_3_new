@@ -2,7 +2,8 @@ function memoize(fn, options = {}) {
     const {
         maxSize = Infinity,
         policy = "LRU",
-        ttl = 0
+        ttl = 0,
+        customEvict = null
     } = options;
 
     const cache = new Map();
@@ -34,6 +35,17 @@ function memoize(fn, options = {}) {
 
             cache.delete(leastKey);
             meta.delete(leastKey);
+
+        } else if (
+            policy === "CUSTOM" &&
+            typeof customEvict === "function"
+        ) {
+            const keyToDelete = customEvict(cache, meta);
+
+            if (keyToDelete) {
+                cache.delete(keyToDelete);
+                meta.delete(keyToDelete);
+            }
         }
     }
 
